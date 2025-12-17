@@ -31,73 +31,77 @@ penguins-classification-flask/
 │   └── svm.pck
 │
 ├── notebooks/
-│   ├── train_model.ipynb       # Notebook de limpieza y entrenamiento
-│   └── client.ipynb            # Notebook para lanzar servidor y probar clientes
+│   ├── train_model.ipynb       # Notebook de limpieza, entrenamiento y serialización
+│   └── client.ipynb            # Notebook para testear el cliente contra la API
 │
-├── predict_app.py              # Script del servidor Flask (generado)
-├── requirements.txt            # Dependencias del proyecto
+├── predict_app.py              # Script del servidor Flask
+├── environment.yml             # Dependencias del proyecto (Conda)
 └── README.md                   # Documentación del proyecto
 
 ```
 
 ---
 
-## 🚀 Instalación y requisitos
+## 🚀 Instalación y Requisitos
 
-Requisitos: **Python 3.9+**
+Este proyecto utiliza **Python 3.9+**. Para asegurar la compatibilidad y gestionar las dependencias correctamente, se utiliza **Conda** mediante un archivo de configuración `environment.yml`.
 
-Archivo llamado requirements.txt en la carpeta raíz del proyecto con el siguiente contenido:
+### 1. Configuración del entorno (`environment.yml`)
+El archivo llamado `environment.yml` en la carpeta raíz del proyecto con el siguiente contenido:
 
-pandas
-numpy
-scikit-learn
-flask
-requests
-seaborn
-matplotlib
-jupyter
-
-Puedes instalar todas estas dependencias de golpe ejecutando el siguiente comando en tu terminal (asegúrate de tener tu entorno virtual activado):
-
-### Opción A: usar `pip` (rápida)
-
-```bash
-pip install -r requirements.txt
+```yaml
+name: penguins_env
+channels:
+  - defaults
+dependencies:
+  - python=3.9
+  - pandas
+  - numpy
+  - scikit-learn
+  - flask
+  - requests
+  - seaborn
+  - matplotlib
+  - jupyter
+  - pip
 ```
 
-### Opción B: usar Conda (recomendado)
+### Instalación y Activación
+
+Puedes crear el entorno virtual e instalar todas las dependencias automáticamente ejecutando los siguientes comandos en tu terminal:
 
 ```bash
-conda create -n penguins_env python=3.9
+# Crear el entorno a partir del archivo YAML
+conda env create -f environment.yml
+
+# Activar el entorno creado
 conda activate penguins_env
-pip install -r requirements.txt
 ```
 
 ---
 
 ## 📦 Dataset
 
-- `dataset/penguins_size.csv`
+El proyecto requiere el archivo de datos en la siguiente ruta: `dataset/penguins_size.csv`
 
 
 ---
 
 ## 🧪 Entrenamiento y serialización de modelos
 
-Ejecuta paso por paso el Jupyter Notebook:
+Antes de iniciar el servidor, es necesario entrenar los modelos. Ejecuta paso a paso el Jupyter Notebook: `📂 notebooks/train_model.ipynb`
 
 ```bash
 notebooks/train_model.ipynb
 ```
 
-Esto:
+Este proceso realiza lo siguiente:
 
-1) Carga el dataset y elimina filas con NA  
-2) Divide datos **80% train / 20% test**  
-3) Escala numéricas con `StandardScaler` (fit en train, transform en train/test)  
-4) One-hot de categóricas con `DictVectorizer`  
-5) Entrena y evalúa 4 modelos  
-6) Guarda 4 ficheros en `models/`:
+1) Carga el dataset y elimina filas con valores nulos.
+2) Divide los datos **80% train / 20% test**  
+3) Escala variables numéricas con `StandardScaler`
+4) Aplica one-hot encoding a categóricas con `DictVectorizer`  
+5) Entrena 4 modelos y los guarda en la carpeta `models/`:
 
 - `models/logistic_regression.pck`
 - `models/svm.pck`
@@ -108,7 +112,7 @@ Esto:
 
 ## 🌐 Ejecutar la API (Flask)
 
-Arranca el servidor:
+Una vez generados los modelos, arranca el servidor desde la terminal (estando en la raíz del proyecto):
 
 ```bash
 python predict_app.py
@@ -122,10 +126,10 @@ El servidor corre en:
 
 La API expone un endpoint por modelo:
 
-- `POST /predict/lr`
-- `POST /predict/svm`
-- `POST /predict/dt`
-- `POST /predict/knn`
+- `POST /predict/lr` (Regresión Logística)
+- `POST /predict/svm` (Support Vector Machine)
+- `POST /predict/dt` (Árbol de Decisión)
+- `POST /predict/knn` (K-Nearest Neighbors)
 
 
 ### Ejemplo de petición (JSON)
@@ -164,7 +168,7 @@ Con el servidor encendido, ejecutamos paso por paso el Jupyter Notebook::
 notebooks/client.ipynb
 ```
 
-El cliente realiza **al menos 2 peticiones por modelo** y muestra las respuestas en consola.
+El cliente enviará automáticamente peticiones a cada uno de los 4 modelos y mostrará la predicción en pantalla.
 
 ---
 
